@@ -6,15 +6,16 @@ import useSpotify from '../hooks/useSpotify';
 
 function Song({song, order}) {
     const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState)
-    const [isPlaying, setisPlaying] = useRecoilState(isPlayingState)
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState)
     const spotifyApi = useSpotify();
 
     const playSong = () => {
         setCurrentTrackId(song.track.id);
-        setisPlaying(true);
-        spotifyApi.play({
-            uris: [song.track.uri],
-        })
+        setIsPlaying(true);
+        // //FIRST WAY
+        // spotifyApi.play({
+        //     uris: [song.track.uri],
+        // })
     }
     return (
         <div className='grid grid-cols-2 text-gray-500 py-4 px-5 hover:bg-gray-900'>

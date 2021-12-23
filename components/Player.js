@@ -22,54 +22,103 @@ function Player() {
     const spotifyApi = useSpotify();
     const songInfo = useSongInfo();
     const {data: session, data} = useSession();
+
     const [currentTrackId, setCurrentTrackId] = useRecoilState(currentTrackIdState);
-    const [isPlaying, setisPlaying] = useRecoilState(isPlayingState);
+    const [isPlaying, setIsPlaying] = useRecoilState(isPlayingState);
+
     const [volume, setVolume] = useState(50);
 
+    const [player, setPlayer] = useState(undefined);
+
+
     const fetchCurrentSong = () => {
-        if(!songInfo){
+        if(songInfo){
             spotifyApi.getMyCurrentPlayingTrack().then(data => {
                 setCurrentTrackId(data.body?.item.id);
                 console.log("now playing", data.body?.item)
 
                 spotifyApi.getMyCurrentPlaybackState().then(data => {
-                    setisPlaying(data.body?.is_playing)
+                    setIsPlaying(data.body?.is_playing)
                 })
             })
         }
     }
 
-    const handlePlayPause = () => {
-        spotifyApi.getMyCurrentPlaybackState((data)=>{
-            if(data.body.is_playing){
-                spotifyApi.pause();
-                setisPlaying(false);
-            }else{
-                spotifyApi.play();
-                setisPlaying(true);
-            }
-        })
-    }
-
     useEffect(() => {
-        if(spotifyApi.getAccessToken() && !currentTrackId){
+        if(spotifyApi.getAccessToken()){
             fetchCurrentSong();
-            setVolume(50);
         }
-    }, [currentTrackIdState, spotifyApi, session])
+    }, [currentTrackId, spotifyApi, session])
 
+
+    //change
     useEffect(() => {
         if(volume > 0 && volume < 100){
             debouncedAdjustVolume(volume);
         }
     }, [volume])
-
     const debouncedAdjustVolume = useCallback(
        debounce((volume)=> {
            spotifyApi.setVolume(volume).catch((err)=> {});
        },500),
        []
     )
+
+
+    //change
+    const handlePlayPause = () => {
+        // //FIRST WAY
+        // spotifyApi.getMyCurrentPlaybackState((data)=>{
+        //     if(data.body.is_playing){
+        //         spotifyApi.pause();
+        //         setIsPlaying(false);
+        //     }else{
+        //         spotifyApi.play();
+        //         setIsPlaying(true);
+        //     }
+        // })
+        isPlaying ? setIsPlaying(false) : setIsPlaying(true)
+
+        // //ANOTHER WAY
+        //player.togglePlay();
+
+    }
+    // //ANOTHER WAY
+    // //https://developer.spotify.com/documentation/web-playback-sdk/guide/
+    // useEffect(() => {
+    //     const script = document.createElement("script");
+    //     script.src = "https://sdk.scdn.co/spotify-player.js";
+    //     script.async = true;
+    //     document.body.appendChild(script);
+    //     window.onSpotifyWebPlaybackSDKReady = () => {
+    //         const player = new window.Spotify.Player({
+    //             name: 'Web Playback SDK',
+    //             getOAuthToken: cb => { cb(spotifyApi.getAccessToken()); },
+    //             volume: 0.5
+    //         });
+    //         setPlayer(player);
+    //         player.addListener('ready', ({ device_id }) => {
+    //             console.log('Ready with Device ID', device_id);
+    //         });
+    //         player.addListener('not_ready', ({ device_id }) => {
+    //             console.log('Device ID has gone offline', device_id);
+    //         });
+    //         player.connect();
+    //         player.addListener('player_state_changed', ( state => {
+    //             if (!state) {
+    //                 return;
+    //             }
+    //             setTrack(state.track_window.current_track);
+    //             setPaused(state.paused);
+
+    //             player.getCurrentState().then( state => { 
+    //                 (!state)? setActive(false) : setActive(true) 
+    //             });            
+    //         }));
+    //     };
+    // }, []);
+    
+    
 
     return (
         <div className='h-24 bg-gradient-to-b from-black to-gray-900 text-white
@@ -97,6 +146,7 @@ function Player() {
                 />
                 <RewindIcon 
                     className='w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out'
+                    //onClick={()=>{player.previousTrack()}}
                 />
                 {isPlaying? (
                     <PauseIcon 
@@ -112,6 +162,7 @@ function Player() {
 
                 <FastForwardIcon
                     className='w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out'
+                    //onClick={()=>{player.nextTrack()}}
                 />
                 <ReplyIcon
                     className='w-5 h-5 cursor-pointer hover:scale-125 transition transform duration-100 ease-out'

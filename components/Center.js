@@ -44,7 +44,7 @@ function Center() {
                 opacity-90 hover:opacity-80 cursor-pointer 
                 rounded-full p-1 pr-2 text-white'>
                     <img 
-                        className='rounded-full w-10 h-10' 
+                        className='rounded-full w-7 h-7' 
                         src={session?.user.image}
                         alt=""
                     />
@@ -54,7 +54,7 @@ function Center() {
             </header>
             <section 
                 className={`flex items-end space-x-7
-                bg-gradient-to-b to-black ${color} h-80 text-white padding-8`}
+                bg-gradient-to-b to-black ${color} h-60 text-white padding-8`}
             >
                 <img className="h-44 l-44 shadow-2xl" src={playlist?.images?.[0]?.url}/>
                 <div>
